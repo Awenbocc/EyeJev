@@ -6,7 +6,7 @@ from its cache) but keeps every prediction instead of only aggregates.
   python -m eyejev.predict --run runs/eyejev-0.8b --data data/sample --split development \
       --out runs/eyejev-0.8b/preds_development.jsonl
 
-`--run` is a local checkpoint directory or a Hugging Face repo id (`org/name[@revision]`).
+`--run` is a local checkpoint directory or a Hugging Face path `org/repo[/subfolder][@revision]`, e.g. BoKelvin/EyeJev/0.8B.
 """
 from __future__ import annotations
 
@@ -18,14 +18,30 @@ import sys
 import numpy as np
 import torch
 
+CKPT_FILES = ["*.json", "*.safetensors", "*.pt", "*.txt", "*.jinja"]
+
+
+def resolve_run(run: str) -> str:
+    """A local directory as is; otherwise `org/repo[/subfolder][@revision]` on the Hugging Face Hub, downloaded to the
+    HF cache (only the checkpoint files of that subfolder)."""
+    if os.path.isdir(run):
+        return run
+    from huggingface_hub import snapshot_download
+    path, _, revision = run.partition("@")
+    parts = path.split("/")
+    repo, sub = "/".join(parts[:2]), "/".join(parts[2:])
+    local = snapshot_download(repo, revision=revision or None,
+                              allow_patterns=[f"{sub}/{p}" for p in CKPT_FILES] if sub else CKPT_FILES)
+    return os.path.join(local, sub)
+
 
 def load_model(run: str, device: str, dtype=torch.bfloat16, base: str | None = None):
     """-> (tokenizer, model). Same procedure as `medjev.checkpoint.load` (LoRA folded into the base in fp32, then cast),
-    plus two things: `base` overrides the base-model path recorded in head.pt (a local copy of the Qwen weights, or a
-    Hub id), and a full fine-tune (`--lora 0`, no adapter) is loaded tensor by tensor."""
+    plus three things: `run` may point into a subfolder of a Hub repo, `base` overrides the base-model path recorded in
+    head.pt (a local copy of the Qwen weights, or a Hub id), and a full fine-tune (`--lora 0`, no adapter) is loaded
+    tensor by tensor."""
     import glob
     from safetensors.torch import load_file
-    from medjev.checkpoint import resolve_run
     from medjev.model import DecisionModel, load_tokenizer
     run = resolve_run(run)
     meta = torch.load(os.path.join(run, "head.pt"), map_location="cpu", weights_only=False)
@@ -56,7 +72,7 @@ def load_model(run: str, device: str, dtype=torch.bfloat16, base: str | None = N
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--run", required=True, help="checkpoint directory or Hugging Face repo id")
+    ap.add_argument("--run", required=True, help="checkpoint directory or Hugging Face path org/repo[/subfolder], e.g. BoKelvin/EyeJev/0.8B")
     ap.add_argument("--base", default=None, help="override the base model recorded in the checkpoint (local dir or Hub id)")
     ap.add_argument("--data", required=True, help="directory holding <split>.jsonl")
     ap.add_argument("--split", default="development")

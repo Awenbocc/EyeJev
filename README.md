@@ -65,13 +65,15 @@ All commands below are run from the repository root.
 
 ### Trained models
 
-| Model | Base model | Hugging Face |
-|---|---|---|
-| EyeJev-0.8B | [Qwen/Qwen3.5-0.8B-Base](https://huggingface.co/Qwen/Qwen3.5-0.8B-Base) | coming soon |
-| EyeJev-2B | [Qwen/Qwen3.5-2B-Base](https://huggingface.co/Qwen/Qwen3.5-2B-Base) | coming soon |
-| EyeJev-9B | [Qwen/Qwen3.5-9B-Base](https://huggingface.co/Qwen/Qwen3.5-9B-Base) | coming soon |
+All three models are in [BoKelvin/EyeJev](https://huggingface.co/BoKelvin/EyeJev), one subfolder per size:
 
-Each release contains the LoRA adapter and the pointer head (`head.pt`). The base model is downloaded from Hugging Face
+| Model | Base model | `--run` |
+|---|---|---|
+| EyeJev-0.8B | [Qwen/Qwen3.5-0.8B-Base](https://huggingface.co/Qwen/Qwen3.5-0.8B-Base) | `BoKelvin/EyeJev/0.8B` |
+| EyeJev-2B | [Qwen/Qwen3.5-2B-Base](https://huggingface.co/Qwen/Qwen3.5-2B-Base) | `BoKelvin/EyeJev/2B` |
+| EyeJev-9B | [Qwen/Qwen3.5-9B-Base](https://huggingface.co/Qwen/Qwen3.5-9B-Base) | `BoKelvin/EyeJev/9B` |
+
+Each model folder contains the LoRA adapter and the pointer head (`head.pt`). The base model is downloaded from Hugging Face
 on first use. To use a local copy of the base weights instead, pass `--base /path/to/Qwen3.5-0.8B-Base`. `--run` also
 accepts a local checkpoint directory produced by `scripts/train.sh`.
 
@@ -106,8 +108,8 @@ For a `score` question, `criteria` is the ordered list of levels, lowest first. 
 requests, one decision case and one diabetic retinopathy grading case.
 
 ```bash
-python -m eyejev.demo --run <checkpoint dir or HF repo id> --input examples/next_investigation.json
-python -m eyejev.demo --run <checkpoint dir or HF repo id> --input examples/dr_grading.json
+python -m eyejev.demo --run BoKelvin/EyeJev/0.8B --input examples/next_investigation.json
+python -m eyejev.demo --run BoKelvin/EyeJev/9B --input examples/dr_grading.json
 ```
 
 The output has one entry per question:
@@ -119,7 +121,7 @@ The output has one entry per question:
 ### A labelled dataset
 
 ```bash
-RUN=<checkpoint dir or HF repo id> DATA=data/sample SPLIT=development bash scripts/predict.sh
+RUN=BoKelvin/EyeJev/0.8B DATA=data/sample SPLIT=development bash scripts/predict.sh
 ```
 
 This writes one JSON line per question, with the gold answer, the predicted answer and the full probability vector,

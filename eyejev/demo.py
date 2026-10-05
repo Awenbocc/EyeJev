@@ -20,7 +20,7 @@ from eyejev.predict import load_model
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--run", required=True, help="checkpoint directory or Hugging Face repo id")
+    ap.add_argument("--run", required=True, help="checkpoint directory or Hugging Face path org/repo[/subfolder], e.g. BoKelvin/EyeJev/0.8B")
     ap.add_argument("--base", default=None, help="override the base model recorded in the checkpoint (local dir or Hub id)")
     ap.add_argument("--input", default="examples/next_investigation.json")
     ap.add_argument("--dtype", choices=["fp32", "bf16"], default="bf16")
