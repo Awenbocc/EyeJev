@@ -1,5 +1,7 @@
 # EyeJev
 
+![EyeJev overview: Eye+ and an ophthalmologist, with 0.8B, 2B and 9B models supporting decision, diagnosis and grading tasks through noul (yes/no), choice (one of N) and score (ordered levels) answers. Patient case text is encoded once to produce answer probabilities locally. Research use only.](docs/assets/eyejev-overview-v1.png)
+
 EyeJev is a family of small decision models (0.8B, 2B, 9B) for ophthalmology. Given a free-text description of a
 patient and a set of closed-form clinical questions, it returns a probability for every predefined answer option.
 It does not generate text. The case is encoded once and all questions are scored from that encoding, so a whole
