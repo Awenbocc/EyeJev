@@ -6,6 +6,12 @@ It does not generate text. The case is encoded once and all questions are scored
 case is answered in a single short pass. The models are small enough to run locally, and patient text never has to leave
 the machine.
 
+## Timeline
+
+- **2026-10-05 · v1.** First public release of EyeJev, built on [MedJev](https://github.com/JunMa11/MedJev) as an exploration of the Jev family of decision models, with training and inference code, a data sample, and the 0.8B, 2B and 9B models on [Hugging Face](https://huggingface.co/BoKelvin/EyeJev).
+
+## What EyeJev answers
+
 EyeJev answers three kinds of questions:
 
 | Family | What is asked | Examples |
@@ -196,20 +202,6 @@ keys are `"True"` and `"False"`. Questions without a teacher row are trained wit
 
 To train on your own data, write `train.jsonl` and `development.jsonl` in this format into one directory and set `DATA`
 to it.
-
-## Repository layout
-
-```
-eyejev/
-  train.py      training: medjev.train + teacher distillation + paraphrase consistency
-  predict.py    per-question predictions on a labelled split, and the checkpoint loader
-  demo.py       answer the questions of a single case
-scripts/
-  train.sh      training recipe (0.8B / 2B / 9B)
-  predict.sh    predictions + micro accuracy
-examples/       two inference requests
-data/sample/    small subset of the training and development data
-```
 
 ## Acknowledgements
 
